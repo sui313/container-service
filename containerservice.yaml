@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: container-ser
+  labels:
+    name: container-ser
+spec:
+  minReadySeconds: 10
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: node
+      type: host
+  template:
+    metadata:
+      name: container-ser
+      namespace: containerservice
+      labels:
+        app: node
+        type: host
+    spec:
+      containers:
+      - name: container-ser
+        image: 192.168.3.103:5000/myimages/conterner-service:v1.0
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          hostPort: 8888
+          protocol: TCP
+          containerPort: 8888
+        volumeMounts: #挂载卷路径
+        - name: dockersocket
+          mountPath: /var/run/docker.sock 
+      restartPolicy: Always #重启策略
+      hostNetwork: true
+      volumes:
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+          type: Socket
